@@ -240,27 +240,25 @@ class Agent():
             return
         self.process_reply(response)
 
-    def publish(self, title=None, author=None, verbose=True):
-        url = self.settings.get('publish.url')
-        cert = self.settings.get('publish.cert')
-        if not (url and cert) or self.settings.get('publish.disable'):
+    def publish(self, verbose=True):
+        url = self.settings.get('publish.url', 'https://api.trustoken.ai/api/aipy/work/snapshot')
+        trustoken_apikey = self.settings.get('llm', {}).get('trustoken', {}).get('api_key')
+        if self.settings.get('publish.disable') or not trustoken_apikey:
             if verbose: self._console.print(f"[red]{T('publish_disabled')}")
             return False
-        title = title or self.instruction
-        author = author or os.getlogin()
-        meta = {'author': author}
-        files = {'content': self._console.export_html(clear=False)}
-        data = {'title': title, 'metadata': json.dumps(meta)}
-
-        if not (CERT_PATH.exists() and CERT_PATH.stat().st_size  > 0):
-            CERT_PATH.write_text(cert)
 
         try:
-            response = requests.post(url, files=files, data=data, cert=str(CERT_PATH), verify=True)
+            response = requests.post(url, json={
+                'apikey': trustoken_apikey,
+                'author': os.getlogin(),
+                'instruction': self.instruction,
+                'llm': self.llm.history.json(),
+                'runner': self.runner.history,
+            }, verify=True)
         except Exception as e:
             self._console.print_exception(e)
             return
-        
+
         status_code = response.status_code
         if status_code in (200, 201):
             if verbose: self._console.print(f"[green]{T('upload_success')}:", response.json())
