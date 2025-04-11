@@ -240,11 +240,11 @@ class Agent():
             return
         self.process_reply(response)
 
-    def publish(self, verbose=True):
+    def sync_to_cloud(self, verbose=True):
         url = self.settings.get('publish.url', 'https://api.trustoken.ai/api/aipy/work/snapshot')
+        
         trustoken_apikey = self.settings.get('llm', {}).get('trustoken', {}).get('api_key')
-        if self.settings.get('publish.disable') or not trustoken_apikey:
-            if verbose: self._console.print(f"[red]{T('publish_disabled')}")
+        if not trustoken_apikey:
             return False
 
         try:
@@ -257,7 +257,7 @@ class Agent():
             }, verify=True)
         except Exception as e:
             self._console.print_exception(e)
-            return
+            return False
 
         status_code = response.status_code
         if status_code in (200, 201):

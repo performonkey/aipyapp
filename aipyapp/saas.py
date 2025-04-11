@@ -21,12 +21,14 @@ class InteractiveConsole():
     def __init__(self, ai, console, settings):
         self.ai = ai
         self.llms = ai.llm.names
-        completer = WordCompleter(['/use', 'use', '/done','done'] + list(self.llms['enabled']), ignore_case=True)
+        completer = WordCompleter(['/use', 'use', '/done','done', '/sync', 'sync'] + list(self.llms['enabled']), ignore_case=True)
         self.history = FileHistory(str(Path.cwd() / settings.history))
         self.session = PromptSession(history=self.history, completer=completer)
         self.console = console
         self.style_main = Style.from_dict({"prompt": "green"})
         self.style_ai = Style.from_dict({"prompt": "cyan"})
+        self.is_notice_sync_cmd = False
+        self.has_trustoken_apikey = settings.get('llm', {}).get('trustoken', {}).get('api_key')
         
     def input_with_possible_multiline(self, prompt_text, is_ai=False):
         prompt_style = self.style_ai if is_ai else self.style_main
@@ -58,6 +60,10 @@ class InteractiveConsole():
         self.console.print(f"{T('ai_mode_enter')}", style="cyan")
         self.run_ai_task(initial_text)
         while True:
+            if self.has_trustoken_apikey and not self.is_notice_sync_cmd and ai.llm:
+                self.is_notice_sync_cmd = True
+                self.console.print(f"{T('sync_cmd_tips')}", style="cyan")
+
             try:
                 user_input = self.input_with_possible_multiline(">>> ", is_ai=True).strip()
             except (EOFError, KeyboardInterrupt):
@@ -66,17 +72,20 @@ class InteractiveConsole():
             if not user_input:
                 continue
             if user_input in ('/done', 'done'):
-                break
+                break            
+            elif user_input in ('/sync', 'sync'):
+                if self.has_trustoken_apikey:
+                    result = ai.sync_to_cloud(verbose=False)
+                    if result and result.get('url'):
+                        self.console.print(f"[bold green]{T('sync_success')}".format(result.get('url')))
+                continue
+            
             name = self.parse_use_command(user_input, self.llms['enabled'])
             if name != None:
                 if name: ai.use(name)
             else:
                 self.run_ai_task(user_input)
 
-        try:
-            ai.publish(verbose=False)
-        except Exception as e:
-            pass
         try:
             ai.done()
         except Exception as e:

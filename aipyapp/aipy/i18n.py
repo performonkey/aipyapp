@@ -63,6 +63,8 @@ MESSAGES = {
         'token_saved': "令牌已保存到 {}",
         'token_save_error': "保存令牌时出错: {}",
         'not usable': "不可用",
+        'sync_cmd_tips': '可以使用 /sync 命令将任务同步到云端',
+        'sync_success': '✅ 同步成功, 在浏览器打开链接查看详情 {}',
     },
     'en': {
         'start_instruction': 'Start processing instruction',
@@ -123,6 +125,8 @@ MESSAGES = {
         'token_saved': "Token saved to {}",
         'token_save_error': "Error saving token: {}",
         'not usable': "Not usable",
+        'sync_cmd_tips': 'You can use the /sync command, sync your current task to the cloud',
+        'sync_success': '✅ Sync success, open link in your browser to view {}',
     }
 }
 
