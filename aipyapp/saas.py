@@ -78,6 +78,8 @@ class InteractiveConsole():
                     result = ai.sync_to_cloud(verbose=False)
                     if result and result.get('url'):
                         self.console.print(f"[bold green]{T('sync_success')}".format(result.get('url')))
+                else:
+                    self.console.print(f"[red]{T('trustoken_apikey_required')}")
                 continue
             
             name = self.parse_use_command(user_input, self.llms['enabled'])

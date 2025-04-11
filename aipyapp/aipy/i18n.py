@@ -65,6 +65,7 @@ MESSAGES = {
         'not usable': "不可用",
         'sync_cmd_tips': '可以使用 /sync 命令将任务同步到云端',
         'sync_success': '✅ 同步成功, 在浏览器打开链接查看详情 {}',
+        'trustoken_apikey_required': '请在配置文件中设置 Trustoken 的 api_key 以使用此功能',
     },
     'en': {
         'start_instruction': 'Start processing instruction',
@@ -127,6 +128,7 @@ MESSAGES = {
         'not usable': "Not usable",
         'sync_cmd_tips': 'You can use the /sync command, sync your current task to the cloud',
         'sync_success': '✅ Sync success, open link in your browser to view {}',
+        'trustoken_apikey_required': 'Please set the Trustoken api_key in the config file to use this feature',
     }
 }
 
